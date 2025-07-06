@@ -1,0 +1,21 @@
+[
+    {
+        "environment": "youtube",
+        "url": "INPUT YOUR LINK",
+        "backup_location": "C:/BBC",
+        "extension": "m4a",
+        "options":{
+            "ydl_opts": {
+                "skip_download": false,
+                "quiet": true,
+                "force_generic_extractor": false,
+                "extract_flat": false,
+                "outtmpl": "C:\\BBC\\%(title)s.%(ext)s",
+                "extract_audio": true,
+                "format": "bestaudio[ext=m4a]",
+                "verbose": false
+            }
+        },
+        "threads": 0
+    }
+]
