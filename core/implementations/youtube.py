@@ -90,9 +90,9 @@ class YouTubeEnvironment:
                     self.cache_save() # TODO temp shitz
                 except Exception as e: # TODO Handle exceptions better, also it is possible that there are more exceptions that were not considered
                     report = repr(e)
-                    if 'The current session has been rate-limited' in report or "This video has been removed for violating YouTube's Terms of Service" in report:
+                    if 'The current session has been rate-limited' in report:
                         raise Exception('The current session has been rate-limited')
-                    if 'Video unavailable.' in report:
+                    if 'Video unavailable.' in report or "This video has been removed for violating YouTube's Terms of Service" in report:
                         self.failed_download(e, self.unavailable_videos) 
                     elif 'This video is only available to Music Premium members' in report or 'Sign in to confirm your age.' in report or "Private video." in report:
                         self.failed_download(e, self.validation_required_videos)
