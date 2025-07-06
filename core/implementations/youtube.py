@@ -89,14 +89,15 @@ class YouTubeEnvironment:
                     self.downloaded_urls.append(link_extract_yt_code(url))
                     self.cache_save() # TODO temp shitz
                 except Exception as e: # TODO Handle exceptions better, also it is possible that there are more exceptions that were not considered
-                    if 'The current session has been rate-limited' in repr(e):
+                    report = repr(e)
+                    if 'The current session has been rate-limited' in report or "This video has been removed for violating YouTube's Terms of Service" in report:
                         raise Exception('The current session has been rate-limited')
-                    if 'Video unavailable.' in repr(e):
+                    if 'Video unavailable.' in report:
                         self.failed_download(e, self.unavailable_videos) 
-                    elif 'This video is only available to Music Premium members' in repr(e) or 'Sign in to confirm your age.' in repr(e) or "Private video." in repr(e):
+                    elif 'This video is only available to Music Premium members' in report or 'Sign in to confirm your age.' in report or "Private video." in report:
                         self.failed_download(e, self.validation_required_videos)
                     else:
-                        print(f'{datetime.now()} - {repr(e)}')
+                        print(f'{datetime.now()} - {report}')
                         return False
                     
     def failed_download(self, exception, append_list):
