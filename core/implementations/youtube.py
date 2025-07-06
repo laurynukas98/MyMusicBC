@@ -11,6 +11,9 @@ def exception_extract_yt_code(report):
     # TODO Handle this garbage better
     return report[(report.find('[youtube] ') + len('[youtube] ')) : (report.find('[youtube] ') + len('[youtube] ')) + 11]
 
+def link_extract_yt_code(url): # TODO needs a little bit improvements
+    return url.replace('https://www.youtube.com/watch?v=', '')
+
 class YouTubeEnvironment:
     CACHE_SAVED_IN = 'cache/youtube/'
 
@@ -41,7 +44,7 @@ class YouTubeEnvironment:
         Path(self.data.backup_location).mkdir(parents=True, exist_ok=True)
         self.only_files = [f for f in listdir(self.data.backup_location) if isfile(join(self.data.backup_location, f))] # TODO handle maybe with ID as this is garbage
         self.to_download = [f"{entrie['url']}" for entrie in self.entries if entrie['title'] + f'.{self.data.extension}' not in self.only_files and all(code not in f"{entrie['url']}" for code in self.unavailable_videos) and all(code not in f"{entrie['url']}" for code in self.validation_required_videos)]
-        self.to_download = [i for i in self.to_download if all(i not in url for url in self.downloaded_urls) ]
+        self.to_download = [i for i in self.to_download if all(link_extract_yt_code(i) not in url for url in self.downloaded_urls) ]
         self.cache_save()
 
     def cache_save(self):
@@ -83,7 +86,7 @@ class YouTubeEnvironment:
             for url in self.to_download:
                 try:
                     ytdl.download(url)
-                    self.downloaded_urls.append(url.replace('https://www.youtube.com/watch?v=', ''))
+                    self.downloaded_urls.append(link_extract_yt_code(url))
                     self.cache_save() # TODO temp shitz
                 except Exception as e: # TODO Handle exceptions better, also it is possible that there are more exceptions that were not considered
                     if 'The current session has been rate-limited' in repr(e):
