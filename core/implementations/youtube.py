@@ -85,7 +85,7 @@ class YouTubeEnvironment:
                     ytdl.download(url)
                     self.downloaded_urls.append(url) # TODO make it so that it would save id instead of full URL
                     self.cache_save() # TODO temp shitz
-                except Exception as e: # TODO Handle exceptions better, also it is possible that there is more exceptions that were not considered
+                except Exception as e: # TODO Handle exceptions better, also it is possible that there are more exceptions that were not considered
                     if 'The current session has been rate-limited' in repr(e):
                         raise Exception('The current session has been rate-limited')
                     if 'Video unavailable.' in repr(e):
