@@ -41,12 +41,13 @@ class YouTubeEnvironment:
         Path(self.data.backup_location).mkdir(parents=True, exist_ok=True)
         self.only_files = [f for f in listdir(self.data.backup_location) if isfile(join(self.data.backup_location, f))] # TODO handle maybe with ID as this is garbage
         self.to_download = [f"{entrie['url']}" for entrie in self.entries if entrie['title'] + f'.{self.data.extension}' not in self.only_files and all(code not in f"{entrie['url']}" for code in self.unavailable_videos) and all(code not in f"{entrie['url']}" for code in self.validation_required_videos)]
+        self.to_download = [i for i in self.to_download if all(i not in url for url in self.downloaded_urls) ]
         self.cache_save()
 
     def cache_save(self):
         Path(self.CACHE_SAVED_IN).mkdir(parents=True, exist_ok=True)
         with open(self.CACHE_SAVED_IN + sanitize_filename(self.id) + '.json', 'w') as file:
-            file.write(json.dumps({'title': self.title, 'unavailable_videos' : self.unavailable_videos, 'validation_required_videos': self.validation_required_videos}))
+            file.write(json.dumps({'title': self.title, 'unavailable_videos' : self.unavailable_videos, 'validation_required_videos': self.validation_required_videos, 'downloaded_urls': self.downloaded_urls}))
 
     def cache_load(self):
         if Path(self.CACHE_SAVED_IN + sanitize_filename(self.id) + '.json').is_file():
@@ -58,10 +59,14 @@ class YouTubeEnvironment:
                 self.validation_required_videos = contents.get('validation_required_videos')
                 if self.validation_required_videos == None:
                     self.validation_required_videos = []
+                self.downloaded_urls = contents.get('downloaded_urls')
+                if self.downloaded_urls == None:
+                    self.downloaded_urls = []
                 print(f'unavailable videos: {self.unavailable_videos}\nValidation Required Videos: {self.validation_required_videos}')
         else:
             self.unavailable_videos = []
             self.validation_required_videos = []
+            self.downloaded_urls = []
 
     def start(self):
         print(f'Running {self.title}')
@@ -78,6 +83,8 @@ class YouTubeEnvironment:
             for url in self.to_download:
                 try:
                     ytdl.download(url)
+                    self.downloaded_urls.append(url) # TODO make it so that it would save id instead of full URL
+                    self.cache_save() # TODO temp shitz
                 except Exception as e: # TODO Handle exceptions better, also it is possible that there is more exceptions that were not considered
                     if 'The current session has been rate-limited' in repr(e):
                         raise Exception('The current session has been rate-limited')
