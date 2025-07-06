@@ -83,7 +83,7 @@ class YouTubeEnvironment:
             for url in self.to_download:
                 try:
                     ytdl.download(url)
-                    self.downloaded_urls.append(url) # TODO make it so that it would save id instead of full URL
+                    self.downloaded_urls.append(url.replace('https://www.youtube.com/watch?v=', ''))
                     self.cache_save() # TODO temp shitz
                 except Exception as e: # TODO Handle exceptions better, also it is possible that there are more exceptions that were not considered
                     if 'The current session has been rate-limited' in repr(e):
